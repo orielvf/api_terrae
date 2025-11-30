@@ -3,8 +3,6 @@ const axios = require('axios');
 const pool = require('../db');
 const router = express.Router();
 
-
-
 router.post('/', async (req, res) => {
     const { email, password } = req.body;
 
@@ -17,6 +15,7 @@ router.post('/', async (req, res) => {
     try {
         console.log("🔍 Buscando authenticity_token...");
 
+        // 1. PEGAR PÁGINA DE LOGIN
         const loginPage = await axios.get("https://pms.hospedin.com/login", {
             responseType: "text",
             headers: {
@@ -28,6 +27,7 @@ router.post('/', async (req, res) => {
 
         const html = loginPage.data;
 
+        // 2. EXTRAIR authenticity_token
         const tokenMatch = html.match(/name="authenticity_token" value="([^"]+)"/);
 
         if (!tokenMatch) {
@@ -38,7 +38,7 @@ router.post('/', async (req, res) => {
 
         const authenticity_token = tokenMatch[1];
 
-        // LOGIN (agora permitindo redirecionamentos)
+        // 3. REALIZAR LOGIN + SEGUIR REDIRECIONAMENTOS
         const resp = await axios.post(
             "https://pms.hospedin.com/login",
             new URLSearchParams({
@@ -52,12 +52,12 @@ router.post('/', async (req, res) => {
                     "User-Agent": "Mozilla/5.0",
                     "Accept": "*/*"
                 },
-                maxRedirects: 5,   // <-- AGORA SIM!
+                maxRedirects: 5,
                 validateStatus: () => true
             }
         );
 
-        // Agora o axios seguiu a redirect chain → o cookie vem aqui
+        // 4. PEGAR COOKIE DE SESSÃO (após redirects)
         const rawCookies = resp.headers["set-cookie"];
 
         if (!rawCookies) {
@@ -66,6 +66,7 @@ router.post('/', async (req, res) => {
 
         const sessionCookie = rawCookies[0].split(";")[0];
 
+        // 5. SALVAR / SUBSTITUIR TOKEN SEMPRE
         await pool.query(`
             INSERT INTO hospedin_session (id, session_cookie, updated_at)
             VALUES (1, $1, NOW())
