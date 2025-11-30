@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 
+const loginHospedinRoutes = require('../routes/login_hospedin');
 const enviarCodigoEmailRoutes = require('../routes/enviarCodigoEmail');
 const cadastrarLoginRoutes = require('../routes/cadastrarLogin');
 const loginRoutes = require('../routes/login');
@@ -25,6 +26,8 @@ const rodarCampanhaNPSRoutes = require('../routes/rodarCampanhaNPS');
 const testeRoutes = require('../routes/teste');
 
 
+
+
 const app = express();
 
 app.use(cors());
@@ -37,6 +40,8 @@ app.use((req, res, next) => {
     next();
 });
 
+
+app.use('/login_hospedin', loginHospedinRoutes);
 app.use('/enviarCodigoEmail', enviarCodigoEmailRoutes);
 app.use('/cadastrarLogin', cadastrarLoginRoutes);
 app.use('/login', loginRoutes);
