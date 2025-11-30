@@ -30,6 +30,8 @@ const testeRoutes = require('../routes/teste');
 
 const app = express();
 
+console.log("🔧 DATABASE_URL carregada?", !!process.env.DATABASE_URL);
+
 app.use(cors());
 app.use(express.json());
 
