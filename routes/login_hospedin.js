@@ -75,6 +75,9 @@ router.post('/', async (req, res) => {
                 updated_at = NOW();
         `, [sessionCookie]);
 
+        // ✅ Log de sucesso
+        console.log("✅ Login realizado com sucesso e cookie salvo!");
+
         return res.status(200).json({
             sucesso: true,
             cookie: sessionCookie
